@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
   root to: 'pages#home'
-  # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
+  resources :orders
+  resources :dishes do
+    resources :order_items, only: :create
+  end
+  resources :order_items, only: [:index, :destroy, :update]
 end

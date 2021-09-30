@@ -1,0 +1,107 @@
+<div class="container">
+    <div class="row categories-card mt-5">
+        <% Dish::ALLOWED_CATEGORIES.each do |category| %>
+            <div class="col">
+                <div class="category-card d-flex">
+                    <div class="icon-holder">
+                        <%= image_tag category, width: "50px" %>
+                    </div>
+                    <div class="category-name-holder">
+                        <%= link_to category, dishes_url(category: category), class: "sub-heading" %>
+                    </div>
+                </div>
+            </div>
+        <% end %>
+    </div>
+
+    <h1 class="heading mt-5"><%= @category.capitalize %></h1>
+
+    <% @dishes.each do |dish| %>
+        
+            <div class="dish-card d-flex">
+                <div class="left-part">
+                    <img src="https://www.webfx.com/blog/images/cdn.designinstruct.com/files/582-how-to-image-placeholders/generic-image-placeholder.png" alt="" class="avatar-square">
+                </div>
+                <div class="middle-part">
+                    <h1 class="sub-heading"><%= dish.name %></h1>
+                    <p><%= dish.description %></p>
+                </div>
+                <div class="right-part">
+                        <% if dish.name.include?("Custom") %>
+                        <p type="button" class="" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                            <%= image_tag "add-button", width: "40px" %>
+                        </p>
+                        <% else %>
+                            <%= button_to dish_order_items_url(dish.id), method: :post do %>
+                                <%= image_tag "add-button", width: "40px" %>
+                            <% end %>
+                        <% end %>
+                </div>
+            </div>
+        
+    <% end %>
+</div>
+
+<div class="container">
+    <h1>Here is your cart</h1>
+    <% @order.order_items.each do |order_item| %>
+        <div class="cart-item-card d-flex">
+            <div class="left-part">
+                <img src="https://www.webfx.com/blog/images/cdn.designinstruct.com/files/582-how-to-image-placeholders/generic-image-placeholder.png" alt="" class="avatar-square">
+            </div>
+            <div class="middle-part">
+                <h1 class="sub-heading"><%= order_item.dish.name %></h1>
+                <p><%= order_item.dish.description %></p>
+                
+            </div>
+            <div class="right-part d-flex">
+                <h1 class="sub-heading">
+                    <%= order_item.total %>
+                </h1>
+                <% if  order_item.quantity == 1 %>
+                    <%= button_to order_item_url(order_item.id), method: :delete do %>
+                        <img src="https://cdn-icons-png.flaticon.com/512/81/81252.png" alt="" width="40px">
+                    <% end %> 
+                <% else %>
+                    <%= button_to order_item_url(order_item.id, quantity: -1), method: :put do %>
+                        <img src="https://cdn-icons-png.flaticon.com/512/81/81252.png" alt="" width="40px">
+                    <% end %> 
+                <% end %>
+            
+
+                <h1 class="sub-heading"><%= order_item.quantity %></h1>
+                <%= button_to order_item_url(order_item.id, quantity: +1), method: :put do %>
+                    <%= image_tag "add-button", width: "40px" %>
+                <% end %>
+                
+                
+            </div>
+        </div>
+   
+    <% end %>
+
+    <h1 class="sub-heading">total: $<%= @order.total %></h1>
+</div>
+
+
+
+
+
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <%= simple_form_for(Dish.new) do |f| %>
+            <%= f.simple_fields_for(:dish_items) do |dish_item_form| %>
+                <%= dish_item_form.input :ingredient_id, as: :select, collection: Ingredient.all, input_html: { multiple: true, include_blank: false }%>
+            <% end %>
+                <%= f.submit "Choose Items", class: "btn btn-primary w-100" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
